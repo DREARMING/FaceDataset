@@ -1,9 +1,11 @@
 import os
 import re
 import uuid
-
+import datetime
 import requests
+import json
 
+#请求网址:https://image.baidu.com/search/acjson?tn=resultjson_com&ipn=rj&ct=201326592&is=&fp=result&queryWord=%E9%99%88%E4%BC%9F%E9%9C%86&cl=2&lm=-1&ie=utf-8&oe=utf-8&adpicid=&st=-1&z=&ic=0&hd=&latest=&copyright=&word=%E9%99%88%E4%BC%9F%E9%9C%86&s=&se=&tab=&width=&height=&face=0&istype=2&qc=&nc=1&fr=&expermode=&force=&cg=star&pn=60&rn=30&gsm=3c&1585626891229=
 
 # 获取百度图片下载图片
 def download_image(key_word, download_max):
@@ -23,10 +25,13 @@ def download_image(key_word, download_max):
               'word=' + key_word + '&pn=' + str_pn + '&gsm=' + str_gsm + '&ct=&ic=0&lm=-1&width=0&height=0'
         print('正在下载 %s 的第 %d 张图片.....' % (key_word, download_sum))
         try:
+            start_time = datetime.datetime.now()
             # 获取当前页面的源码
             result = requests.get(url, timeout=30).text
             # 获取当前页面的图片URL
             img_urls = re.findall('"objURL":"(.*?)",', result, re.S)
+            waste_time = (datetime.datetime.now() - start_time).microseconds / 1000
+            print("查询%d张图片需要耗时 %d ms" % (len(img_urls), waste_time))
             if len(img_urls) < 1:
                 break
             # 把这些图片URL一个个下载
@@ -54,7 +59,7 @@ if __name__ == '__main__':
     with open('image_url_list.txt', 'w', encoding='utf-8') as f_u:
         pass
     # 最大下载数量
-    max_sum = 100
+    max_sum = 6
     # 从文件中获取明星的名字
     with open('star_name.txt', 'r', encoding='utf-8') as f:
         key_words = f.readlines()

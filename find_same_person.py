@@ -1,6 +1,6 @@
 import os
 import shutil
-
+import datetime
 import face_recognition
 import numpy
 
@@ -13,8 +13,11 @@ def find_same_person(person_image_path):
     for image_path in image_paths:
         img_path = os.path.join(person_image_path, image_path)
         try:
+            start_time = datetime.datetime.now()
             image = face_recognition.load_image_file(img_path)
             encodings = face_recognition.face_encodings(image, num_jitters=10)[0]
+            waste_time = (datetime.datetime.now() - start_time).microseconds / 1000
+            print("提取一次人脸特征耗时 %d ms" % waste_time)
             known_face_encodings.append(encodings)
         except Exception as e:
             try:
@@ -28,8 +31,11 @@ def find_same_person(person_image_path):
             img_path = os.path.join(person_image_path, image_path)
             image = face_recognition.load_image_file(img_path)
             a_single_unknown_face_encoding = face_recognition.face_encodings(image, num_jitters=10)[0]
+            start_time = datetime.datetime.now()
             results = face_recognition.compare_faces(known_face_encodings, a_single_unknown_face_encoding,
                                                      tolerance=0.5)
+            waste_time = (datetime.datetime.now() - start_time).microseconds / 1000
+            print("对比多张人脸耗时 %d ms" % waste_time)
             results = numpy.array(results).astype(numpy.int64)
             if numpy.sum(results) > 5:
                 main_path = os.path.join(person_image_path, '0.jpg')

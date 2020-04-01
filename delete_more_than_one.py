@@ -4,8 +4,7 @@ import cv2
 import numpy as np
 from mtcnn.mtcnn import MTCNN
 
-detector = MTCNN()
-
+detector = MTCNN(min_face_size=40)
 
 # 删除两个人脸以上的图片或者没有人脸的图片
 def delete_image(image_path):
@@ -13,10 +12,12 @@ def delete_image(image_path):
         img = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), -1)
         result = detector.detect_faces(img)
         if len(result) != 1:
+            print("删除照片:%s, 该照片的人脸数：%d" % (image_path, len(result)))
             os.remove(image_path)
         else:
             confidence = result[0]['confidence']
             if confidence < 0.85:
+                print("删除照片:%s, 该照片的人脸可信度为：%f" % (image_path, confidence))
                 os.remove(image_path)
     except Exception as e:
         print(e)

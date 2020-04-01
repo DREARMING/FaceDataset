@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding:utf-8 -*-
 import json
 import requests
 
@@ -6,10 +8,10 @@ f = open('star_name.txt', 'w', encoding='utf-8')
 
 
 # 获取明星的名字并保存到文件中
-def get_page(pages, star_name):
+def get_page(pages, pagesize, star_name):
     params = []
     # 设置访问的请求头，包括分页数和明星所在的地区
-    for i in range(0, 12 * pages + 12, 12):
+    for i in range(0, pagesize * pages, pagesize):
         params.append({
             'resource_id': 28266,
             'from_mid': 1,
@@ -24,9 +26,11 @@ def get_page(pages, star_name):
             'stat2': '',
             'stat3': '',
             'pn': i,
-            'rn': 12})
+            'rn': pagesize})
+
 
     # 请求的百度接口获取明星的名字
+    # 可以通过 百度搜索栏搜索明星，然后通过web控制台对明星那一页进行查询，获取到请求的url、参数格式，响应格式，然后抄下来即可
     url = 'https://sp0.baidu.com/8aQDcjqpAAV3otqbppnN2DJv/api.php'
 
     x = 0
@@ -37,6 +41,8 @@ def get_page(pages, star_name):
             res = requests.get(url, params=param, timeout=50)
             # 把网页数据转换成json数据
             js = json.loads(res.text)
+            if not js:
+                continue
             # 获取json中的明星数据
             results = js.get('data')[0].get('result')
         except AttributeError as e:
@@ -58,9 +64,10 @@ def get_star_name():
     # 获取三个地区的明星
     names = ['内地', '香港', '台湾']
     # 指定每个地区获取的页数
-    sums = [600, 200, 200]
+    #sums = [600, 200, 200]
+    sums = [1, 1, 1]
     for i in range(len(names)):
-        get_page(sums[i], names[i])
+        get_page(sums[i], 6,  names[i])
 
     f.close()
 
